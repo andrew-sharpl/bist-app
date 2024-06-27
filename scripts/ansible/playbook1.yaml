@@ -1,0 +1,29 @@
+- name: BIST App server config - post GitHub connection
+  # Run this after playbook0.yaml and after you've manually added each host's
+  # public ssh key as a GitHub deploy key in the repo.
+  hosts: bist_servers
+  tasks:
+    - name: add ssh key to ssh-agent and git clone
+      shell: eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id && git clone git@github.com:csc301-2023-winter/project-11-bist-t.git
+      args:
+        creates: /root/project-11-bist-t
+    
+    - name: install application dependencies
+      shell: npm install
+      args:
+        chdir: /root/project-11-bist-t/
+    
+    - name: run deploy script
+      shell: eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id && ./scripts/deploy.sh
+      args:
+        chdir: /root/project-11-bist-t/
+      async: 45
+      poll: 0
+
+    # To configure automatic deployments,
+    # make sure the GitHub Environemnt is configured with the private key 
+    # and known_hosts required, along with the env variables deploy command and
+    # ssh host. Also, you must ssh-copy-id the public key over to the target 
+    # host.
+    #
+    # Then, each host is set up for automatic deployments!

@@ -1,0 +1,19 @@
+{
+  "name": "@gecko/bist-app",
+  "scripts": {
+    "deploy": "npm run start:server",
+    "start": "run-p start:**",
+    "start:mobile": "npm run start --prefix=./src/mobile",
+    "start:server": "npm run start --prefix=./src/server",
+    "test": "jest && cd src/mobile && jest",
+    "postinstall": "run-s -cn install:**",
+    "install:mobile": "npm install --prefix=./src/mobile",
+    "install:server": "npm install --prefix=./src/server"
+  },
+  "devDependencies": {
+    "jest": "^29.4.2"
+  },
+  "dependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

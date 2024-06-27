@@ -1,0 +1,7 @@
+bist_servers:
+  # Fill in the info for your hosts and user
+  hosts:
+    example_bist_host:
+      ansible_host: 123.456.78.90
+  vars:
+    ansible_user: root

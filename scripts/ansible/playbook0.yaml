@@ -1,0 +1,96 @@
+- name: BIST App server config
+  hosts: bist_servers
+  tasks:
+    # first need to manually ssh-copy-id your public key so ansible can get 
+    # onto the host
+
+    - name: copy over sshd_config
+      ansible.builtin.copy:
+        src: ./config/sshd_config
+        dest: /etc/ssh/sshd_config
+
+    - name: remove any extra sshd config files
+      file:
+        state: absent
+        path: /etc/ssh/sshd_config.d/
+      notify:
+        - restart sshd
+
+    - name: update and upgrade existing packages
+      ansible.builtin.apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: install packages
+      ansible.builtin.apt:
+        pkg: 
+        - git
+        - nodejs
+        - npm
+        - psmisc
+        - nginx
+        state: latest
+
+    - name: generate ssh keypair for this host
+      openssh_keypair:
+        path: ~/.ssh/id
+        type: rsa
+        size: 4096
+        state: present
+        force: no
+
+    - name: copy over known_hosts
+      ansible.builtin.copy:
+        src: ./config/known_hosts
+        dest: /root/.ssh/known_hosts
+        force: false
+
+    - name: copy nginx config
+      ansible.builtin.copy:
+        src: ./config/spalmurray.com
+        dest: /etc/nginx/sites-available/spalmurray.com
+      notify:
+        - restart nginx
+      
+    - name: create nginx config symlink
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/spalmurray.com
+        dest: /etc/nginx/sites-enabled/spalmurray.com
+        state: link
+      notify:
+        - restart nginx
+
+    - name: copy over SSL certificate
+      ansible.builtin.copy:
+        src: ./config/ssl/
+        dest: /etc/letsencrypt/
+        force: false
+        local_follow: false
+      notify:
+        - restart nginx
+
+    - name: allow Nginx HTTP through firewall
+      community.general.ufw:
+        rule: allow
+        name: 'Nginx HTTP'
+
+    - name: allow Nginx HTTPS through the firewall
+      community.general.ufw:
+        rule: allow
+        name: 'Nginx HTTPS'
+
+    - name: install nvm
+      shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+    - name: install and use node 18
+      shell: . ~/.bashrc && nvm install 18
+
+    # After this, add each hosts public ssh key as a deploy key in the GitHub
+    # repo and then run playbook1.yaml
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+
+    - name: restart sshd
+      service: name=sshd state=restarted

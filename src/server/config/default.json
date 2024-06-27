@@ -1,0 +1,4 @@
+{
+    "mongoURI": "mongodb+srv://gecko:gecko23CSC301@bist.vzre4g3.mongodb.net/dev?retryWrites=true&w=majority",
+    "jwtSecret": "csc301gecko"
+}

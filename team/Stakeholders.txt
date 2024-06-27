@@ -1,0 +1,6 @@
+Partner: Brain Injury Society of Toronto (BIST)
+  - Meri Perra, Communications Manager, mperra@bist.ca
+  - Melissa Vigar, Executive Director, mvigar@bist.ca
+
+TA: Pritish Mishra, pritish@cs.toronto.edu
+
